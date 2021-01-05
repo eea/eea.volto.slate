@@ -5,19 +5,14 @@ import transaction
 from zope.component import queryUtility
 
 from eea.volto.slate.tests.base import FUNCTIONAL_TESTING
-from plone.app.testing import (SITE_OWNER_NAME, SITE_OWNER_PASSWORD,
-                               TEST_USER_ID, setRoles)
+from plone.app.testing import TEST_USER_ID, setRoles
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import createContentInContainer
-from plone.restapi.testing import RelativeSession
 
 
 class TestSearchTextInBlocks(unittest.TestCase):
 
     layer = FUNCTIONAL_TESTING
-
-    # def tearDown(self):
-    #     self.api_session.close()
 
     def setUp(self):
         self.app = self.layer["app"]
