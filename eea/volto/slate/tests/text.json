@@ -1,0 +1,260 @@
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "text": "  "
+          }
+        ],
+        "type": "p"
+      },
+      {
+        "children": [
+          {
+            "text": ""
+          },
+          {
+            "children": [
+              {
+                "text": ""
+              },
+              {
+                "children": [
+                  {
+                    "text": "Streamlining European biodiversity indicators 2020: Building a future on lessons learnt      from the SEBI 2010 process (2012)"
+                  }
+                ],
+                "type": "i"
+              },
+              {
+                "text": ""
+              }
+            ],
+            "data": {
+              "link": {
+                "external": {
+                  "external_link": "http://www.example.eu/publications/streamlining-european-biodiversity-indicators-2020",
+                  "target": "_self"
+                }
+              }
+            },
+            "type": "a",
+            "url": "http://www.example.eu/publications/streamlining-european-biodiversity-indicators-2020"
+          },
+          {
+            "text": ""
+          },
+          {
+            "children": [
+              {
+                "text": ""
+              }
+            ],
+            "type": "i"
+          },
+          {
+            "text": ""
+          },
+          {
+            "children": [
+              {
+                "text": ""
+              },
+              {
+                "children": [
+                  {
+                    "text": "\nAssessing biodiversity in Europe \u2014 the 2010 report (2010)"
+                  }
+                ],
+                "type": "i"
+              },
+              {
+                "text": ""
+              }
+            ],
+            "data": {
+              "link": {
+                "external": {
+                  "external_link": "http://www.example.eu/publications/assessing-biodiversity-in-europe-84",
+                  "target": "_self"
+                }
+              }
+            },
+            "type": "a",
+            "url": "http://www.example.eu/publications/assessing-biodiversity-in-europe-84"
+          },
+          {
+            "text": ""
+          },
+          {
+            "children": [
+              {
+                "text": ""
+              }
+            ],
+            "type": "i"
+          },
+          {
+            "text": "\n"
+          },
+          {
+            "children": [
+              {
+                "text": ""
+              },
+              {
+                "children": [
+                  {
+                    "text": "Progress towards the European 2010 biodiversity target (2009)"
+                  }
+                ],
+                "type": "i"
+              },
+              {
+                "text": ""
+              }
+            ],
+            "data": {
+              "link": {
+                "external": {
+                  "external_link": "http://www.example.eu/highlights/publications/progress-towards-the-european-2010-biodiversity-target/",
+                  "target": "_self"
+                }
+              }
+            },
+            "type": "a",
+            "url": "http://www.example.eu/highlights/publications/progress-towards-the-european-2010-biodiversity-target/"
+          },
+          {
+            "text": ""
+          },
+          {
+            "children": [
+              {
+                "text": ""
+              }
+            ],
+            "type": "i"
+          },
+          {
+            "text": ""
+          }
+        ],
+        "type": "li"
+      },
+      {
+        "children": [
+          {
+            "text": ""
+          },
+          {
+            "children": [
+              {
+                "text": ""
+              },
+              {
+                "children": [
+                  {
+                    "text": "Halting the loss of biodiversity by 2010: proposal for a first set of indicators      to monitor progress in Europe (2007)"
+                  }
+                ],
+                "type": "i"
+              },
+              {
+                "text": ""
+              }
+            ],
+            "data": {
+              "link": {
+                "external": {
+                  "external_link": "http://www.example.eu/publications/technical_report_2007_11",
+                  "target": "_self"
+                }
+              }
+            },
+            "type": "a",
+            "url": "http://www.example.eu/publications/technical_report_2007_11"
+          },
+          {
+            "text": ""
+          },
+          {
+            "children": [
+              {
+                "text": ""
+              }
+            ],
+            "type": "i"
+          },
+          {
+            "text": ""
+          }
+        ],
+        "type": "li"
+      },
+      {
+        "children": [
+          {
+            "text": ""
+          },
+          {
+            "children": [
+              {
+                "text": "Report on "
+              }
+            ],
+            "type": "i"
+          },
+          {
+            "text": ""
+          },
+          {
+            "children": [
+              {
+                "text": ""
+              },
+              {
+                "children": [
+                  {
+                    "text": "Interlinkages between the European biodiversity      indicators, improving their information power"
+                  }
+                ],
+                "type": "i"
+              },
+              {
+                "text": ""
+              }
+            ],
+            "data": {
+              "link": {
+                "external": {
+                  "external_link": "https://www.example.eu/topics/sebi-indicators/sebi-interlinkages-final-report.pdf",
+                  "target": "_self"
+                }
+              }
+            },
+            "type": "a",
+            "url": "https://www.example.eu/topics/sebi-indicators/sebi-interlinkages-final-report.pdf"
+          },
+          {
+            "text": ""
+          },
+          {
+            "children": [
+              {
+                "text": ""
+              }
+            ],
+            "type": "i"
+          },
+          {
+            "text": ""
+          }
+        ],
+        "type": "li"
+      }
+    ],
+    "type": "ul"
+  }
+]
