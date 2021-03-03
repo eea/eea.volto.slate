@@ -61,12 +61,14 @@ class TestBlockTransformers(unittest.TestCase):
                 "plaintext": "this is a slate link inside some text",
                 "value": [
                     {
+                        "type": "p",
                         "children": [
                             {"text": "this is a "},
                             {
                                 "children": [
                                     {"text": ""},
                                     {
+                                        "type": "a",
                                         "children": [{"text": "slate link"}],
                                         "data": {
                                             "link": {
@@ -80,7 +82,6 @@ class TestBlockTransformers(unittest.TestCase):
                                                 }
                                             }
                                         },
-                                        "type": "a",
                                     },
                                     {"text": ""},
                                 ],
@@ -88,7 +89,6 @@ class TestBlockTransformers(unittest.TestCase):
                             },
                             {"text": " inside some text"},
                         ],
-                        "type": "p",
                     }
                 ],
             },
