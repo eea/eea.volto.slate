@@ -138,13 +138,18 @@ class HTML2SlateParser(HTMLParser):
 
         while len(q):
             child = q.pop()
-            if child.get("children"):
+            children = child.get("children", None)
+            if children is not None:
                 q.extend(child["children"])
                 self.pad_with_space(child["children"])
 
         return self.result
 
     def pad_with_space(self, children):
+        if len(children) == 0:
+            children.append({"text": ""})
+            return
+
         if not children[0].get("text"):
             children.insert(0, {"text": ""})
         if not children[-1].get("text"):
