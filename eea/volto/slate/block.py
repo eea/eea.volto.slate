@@ -14,6 +14,18 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from .utils import iterate_children
 
 
+def transform_links(context, value, transformer):
+    # Convert absolute links to resolveuid
+    #   http://localhost:55001/plone/link-target
+    #   ->
+    #   ../resolveuid/023c61b44e194652804d05a15dc126f4
+    data = value.get("data", {})
+    if data.get("link", {}).get("internal", {}).get("internal_link"):
+        internal_link = data["link"]["internal"]["internal_link"]
+        for link in internal_link:
+            link["@id"] = transformer(context, link["@id"])
+
+
 class SlateBlockTransformer(object):
     def __init__(self, context, request):
         self.context = context
@@ -53,18 +65,6 @@ class SlateBlockSerializer(SlateBlockSerializerBase):
 @adapter(IPloneSiteRoot, IBrowserRequest)
 class SlateBlockSerializerRoot(SlateBlockSerializerBase):
     """ Serializer for site root """
-
-
-def transform_links(context, value, transformer):
-    # Convert absolute links to resolveuid
-    #   http://localhost:55001/plone/link-target
-    #   ->
-    #   ../resolveuid/023c61b44e194652804d05a15dc126f4
-    data = value.get("data", {})
-    if data.get("link", {}).get("internal", {}).get("internal_link"):
-        internal_link = data["link"]["internal"]["internal_link"]
-        for link in internal_link:
-            link["@id"] = transformer(context, link["@id"])
 
 
 class SlateBlockDeserializerBase(SlateBlockTransformer):

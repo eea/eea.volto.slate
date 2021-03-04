@@ -3,37 +3,35 @@
 A port of volto-slate' deserialize.js module
 """
 
+import json
 import re
 from collections import deque
 from html.parser import HTMLParser
 
 import six
 
-# from defusedxml.minidom import parseString
-# from lxml.html import document_fromstring, fragment_fromstring
-
 KNOWN_BLOCK_TYPES = [
+    "a",
+    "blockquote",
+    "del",
+    "em",
     "h1",
     "h2",
     "h3",
     "h4",
     "h5",
     "h6",
-    "p",
-    "blockquote",
-    "pre",
-    "ol",
-    "ul",
-    "li",
-    "strong",
-    "del",
-    "em",
     "i",
+    "li",
+    "ol",
+    "p",
+    "pre",
     "s",
+    "strong",
     "sub",
     "sup",
     "u",
-    "a",
+    "ul",
 ]
 
 DEFAULT_BLOCK_TYPE = "p"
@@ -56,7 +54,7 @@ class HTML2SlateParser(HTMLParser):
         self.stack.append(element)
         return element
 
-    def handle_a(self, tag, attrs):
+    def handle_tag_a(self, tag, attrs):
         attrs = dict(attrs)
         link = attrs.get("href", "")
 
@@ -80,23 +78,26 @@ class HTML2SlateParser(HTMLParser):
 
         return element
 
-    def handle_br(self, tag, attrs):
+    def handle_tag_body(self):
+        pass
+
+    def handle_tag_br(self, tag, attrs):
         self.add_text("\n")
         self.level -= 1
 
-    def handle_b(self, tag, attrs):
+    def handle_tag_b(self, tag, attrs):
         # <b> needs special handling
 
         return self._element(tag, attrs)
 
-    def handle_code(self):
+    def handle_tag_code(self):
         pass
 
-    def handle_span(self, tag, attrs):
+    def handle_tag_span(self, tag, attrs):
         # do nothing for now
         pass
 
-    def handle_generic_block(self, tag, attrs):
+    def handle_some_block(self, tag, attrs):
         if tag not in KNOWN_BLOCK_TYPES:
             tag = DEFAULT_BLOCK_TYPE
 
@@ -104,7 +105,14 @@ class HTML2SlateParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         # print("---Encountered a start tag:", tag, self.level)
-        handler = getattr(self, "handle_{}".format(tag), self.handle_generic_block)
+
+        attributes = dict(attrs)
+
+        if attributes.get("data-slate-data"):
+            handler = self.handle_slate_data(tag, attrs)
+        else:
+            handler = getattr(self, "handle_tag_{}".format(tag), self.handle_some_block)
+
         element = handler(tag, attrs)
 
         if self.level == 0 and element is not None:
@@ -116,7 +124,13 @@ class HTML2SlateParser(HTMLParser):
         self.stack.pop()
         # print("---Encountered an end tag :", tag)
 
+    def handle_slate_data(self, tag, attrs):
+        attributes = dict(attrs)
+        element = json.loads(attributes["data-slate-data"])
+        return element
+
     def handle_data(self, data):
+        """ Generic text handler, native HTML parser API """
         if is_whitespace(data):
             return
 
@@ -132,8 +146,6 @@ class HTML2SlateParser(HTMLParser):
             current["children"].append({"text": text})
 
     def end(self):
-        # pad children with empty spaces. Slate requires the children array start and
-        # end with "texts", even if empty, this allows Slate to place a cursor
         q = deque(self.result)
 
         while len(q):
@@ -146,6 +158,8 @@ class HTML2SlateParser(HTMLParser):
         return self.result
 
     def pad_with_space(self, children):
+        # pad children with empty spaces. Slate requires the children array start and
+        # end with "texts", even if empty, this allows Slate to place a cursor
         if len(children) == 0:
             children.append({"text": ""})
             return
@@ -188,26 +202,6 @@ def html_fragment_to_slate(text):
 #     dom = parseString(text)
 #     return deserialize(element.find("body"))
 
-# if (el.nodeType == COMMENT) {
-#   return null
-# } else if (el.nodeType == TEXT_NODE) {
-#   // instead of == '\n' we use isWhitespace for when deserializing tables
-#   // from Calc and other similar cases
-#   if (isWhitespace(el.textContent)) {
-#     // if it's empty text between 2 tags, it should be ignored
-#     return null
-#   }
-#   return el.textContent
-#     .replace(/\n$/g, ' ')
-#     .replace(/\n/g, ' ')
-#     .replace(/\t/g, '');
-# } else if (el.nodeType !== ELEMENT_NODE) {
-#   return null;
-# } else if (el.nodeName === 'BR') {
-#   // TODO: handle <br> ?
-#   return null;
-# }
-#
 # if (el.getAttribute('data-slate-data')) {
 #   return typeDeserialize(editor, el);
 # }
