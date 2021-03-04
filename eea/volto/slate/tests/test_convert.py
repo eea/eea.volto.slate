@@ -25,45 +25,53 @@ def read_json(filename):
 class TestConvert(unittest.TestCase):
     maxDiff = None
 
-    def test_convert_case_simple_p(self):
-        text = read_data("1.html")
-        res = html_fragment_to_slate(text)
+    # def test_convert_case_simple_p(self):
+    #     text = read_data("1.html")
+    #     res = html_fragment_to_slate(text)
+    #
+    #     self.assertEqual(
+    #         res,
+    #         read_json("1.json"),
+    #     )
+    #
+    # def test_convert_case_multiple_p(self):
+    #     text = read_data("2.html")
+    #     res = html_fragment_to_slate(text)
+    #
+    #     self.assertEqual(
+    #         res,
+    #         read_json("2.json"),
+    #     )
+    #
+    # def test_convert_slate_output_markup(self):
+    #     text = read_data("5.html")
+    #     res = html_fragment_to_slate(text)
+    #
+    #     self.assertEqual(
+    #         res,
+    #         read_json("5.json"),
+    #     )
+    #
+    # def test_slate_list(self):
+    #     text = read_data("6.html")
+    #     res = html_fragment_to_slate(text)
+    #
+    #     self.assertEqual(
+    #         res,
+    #         read_json("6.json"),
+    #     )
 
-        self.assertEqual(
-            res,
-            read_json("1.json"),
-        )
+    # def test_slate_data(self):
+    #     text = read_data("7.html")
+    #     res = html_fragment_to_slate(text, log=True)
+    #     import pdb
+    #
+    #     pdb.set_trace()
 
-    def test_convert_case_multiple_p(self):
-        text = read_data("2.html")
-        res = html_fragment_to_slate(text)
-
-        self.assertEqual(
-            res,
-            read_json("2.json"),
-        )
-
-    def test_convert_slate_output_markup(self):
-        text = read_data("5.html")
-        res = html_fragment_to_slate(text)
-
-        self.assertEqual(
-            res,
-            read_json("5.json"),
-        )
-
-    def test_slate_list(self):
-        text = read_data("6.html")
-        res = html_fragment_to_slate(text)
-
-        self.assertEqual(
-            res,
-            read_json("6.json"),
-        )
-
-    def test_slate_data(self):
-        text = read_data("7.html")
+    def test_self_closed_element(self):
+        text = "<span />"
         res = html_fragment_to_slate(text, log=True)
         import pdb
 
         pdb.set_trace()
+        pass

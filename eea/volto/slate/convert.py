@@ -42,10 +42,10 @@ class HTML2SlateParser(HTMLParser):
         super(HTML2SlateParser, self).__init__()
         self.log = log
         self.result = []
-        self.stack = deque([])
-        self.level = 0
+        self.stack = deque([])  # used to determine the current wrapping element
+        self.level = 0  # used to determine if an element is top level or not
 
-    def slate_element(self, tag, attrs):
+    def slate_element_builder(self, tag, attrs):
         """A slate element builder"""
 
         element = {"type": tag, "children": []}
@@ -54,6 +54,7 @@ class HTML2SlateParser(HTMLParser):
             current = self.stack[-1]
             current["children"].append(element)
 
+        print("---Placing element in stack", tag)
         self.stack.append(element)
         return element, True
 
@@ -61,7 +62,7 @@ class HTML2SlateParser(HTMLParser):
         attrs = dict(attrs)
         link = attrs.get("href", "")
 
-        element, is_block_element = self.slate_element(tag, attrs)
+        element, is_block_element = self.slate_element_builder(tag, attrs)
         if link:
             if link.startswith("http") or link.startswith("//"):
                 # TODO: implement external link
@@ -89,7 +90,7 @@ class HTML2SlateParser(HTMLParser):
         # <b> needs special handling
         # TODO: implement me
 
-        return self.slate_element(tag, attrs)
+        return self.slate_element_builder(tag, attrs)
 
     def handle_tag_span(self, tag, attrs):
         # TODO: implement me
@@ -99,7 +100,7 @@ class HTML2SlateParser(HTMLParser):
         if tag not in KNOWN_BLOCK_TYPES:
             tag = DEFAULT_BLOCK_TYPE
 
-        return self.slate_element(tag, attrs)
+        return self.slate_element_builder(tag, attrs)
 
     def handle_starttag(self, tag, attrs):
         if self.log:
@@ -117,13 +118,14 @@ class HTML2SlateParser(HTMLParser):
         if element is not None:
             if self.level == 0:
                 self.result.append(element)
-            self.level += 1
+            if is_block_element:
+                self.level += 1
 
     def handle_endtag(self, tag):
-        self.level -= 1
-        self.stack.pop()
         if self.log:
             print("---Encountered an end tag :", tag, self.level)
+        self.level -= 1
+        self.stack.pop()
 
     def handle_slate_data(self, tag, attrs):
         if self.log:
@@ -139,6 +141,7 @@ class HTML2SlateParser(HTMLParser):
             current = self.stack[-1]
             current["children"].append(element)
 
+        print("---Placing slate data element in stack", tag)
         self.stack.append(element)
 
         return element, True
