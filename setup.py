@@ -41,6 +41,7 @@ setup(
     install_requires=[
         "setuptools",
         # -*- Extra requirements: -*-
+        "html5lib",
     ],
     extras_require={
         "test": [

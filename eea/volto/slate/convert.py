@@ -36,164 +36,7 @@ KNOWN_BLOCK_TYPES = [
 
 DEFAULT_BLOCK_TYPE = "p"
 
-
-class HTML2SlateParser(HTMLParser):
-    def __init__(self, log=False):
-        super(HTML2SlateParser, self).__init__()
-        self.log = log
-        self.result = []
-        self.stack = deque([])  # used to determine the current wrapping element
-        self.level = 0  # used to determine if an element is top level or not
-
-    def slate_element_builder(self, tag, attrs):
-        """A slate element builder"""
-
-        element = {"type": tag, "children": []}
-
-        if self.stack:
-            current = self.stack[-1]
-            current["children"].append(element)
-
-        print("---Placing element in stack", tag)
-        self.stack.append(element)
-        return element, True
-
-    def handle_tag_a(self, tag, attrs):
-        attrs = dict(attrs)
-        link = attrs.get("href", "")
-
-        element, is_block_element = self.slate_element_builder(tag, attrs)
-        if link:
-            if link.startswith("http") or link.startswith("//"):
-                # TODO: implement external link
-                pass
-            else:
-                element["data"] = {
-                    "link": {
-                        "internal": {
-                            "internal_link": [
-                                {
-                                    "@id": link,
-                                }
-                            ]
-                        }
-                    }
-                }
-
-        return element, True
-
-    def handle_tag_br(self, tag, attrs):
-        self.add_text("\n")
-        return None, False
-
-    def handle_tag_b(self, tag, attrs):
-        # <b> needs special handling
-        # TODO: implement me
-
-        return self.slate_element_builder(tag, attrs)
-
-    def handle_tag_span(self, tag, attrs):
-        # TODO: implement me
-        return None, False
-
-    def handle_some_block(self, tag, attrs):
-        if tag not in KNOWN_BLOCK_TYPES:
-            tag = DEFAULT_BLOCK_TYPE
-
-        return self.slate_element_builder(tag, attrs)
-
-    def handle_starttag(self, tag, attrs):
-        if self.log:
-            print("---Encountered a start tag:", tag, self.level)
-
-        attributes = dict(attrs)
-
-        if attributes.get("data-slate-data"):
-            handler = self.handle_slate_data
-        else:
-            handler = getattr(self, "handle_tag_{}".format(tag), self.handle_some_block)
-
-        element, is_block_element = handler(tag, attrs)
-
-        if element is not None:
-            if self.level == 0:
-                self.result.append(element)
-            if is_block_element:
-                self.level += 1
-
-    def handle_endtag(self, tag):
-        if self.log:
-            print("---Encountered an end tag :", tag, self.level)
-        self.level -= 1
-        self.stack.pop()
-
-    def handle_slate_data(self, tag, attrs):
-        if self.log:
-            print("---Handling Slate data tag:", tag, self.level)
-
-        attributes = dict(attrs)
-
-        element = json.loads(attributes["data-slate-data"])
-        if "children" not in element:
-            element["children"] = []
-
-        if self.stack:
-            current = self.stack[-1]
-            current["children"].append(element)
-
-        print("---Placing slate data element in stack", tag)
-        self.stack.append(element)
-
-        return element, True
-
-    def handle_data(self, data):
-        """ Generic text handler, native HTML parser API """
-        if is_whitespace(data):
-            return
-
-        text = clean_whitespace(data)
-        self.add_text(text)
-        if self.log:
-            print("---Encountered some data  :", text)
-
-    def add_text(self, text):
-        current = self.stack[-1]
-        if current["children"] and "text" in current["children"][-1]:
-            current["children"][-1]["text"] += text
-        else:
-            current["children"].append({"text": text})
-
-    def end(self):
-        q = deque(self.result)
-
-        while len(q):
-            child = q.pop()
-            children = child.get("children", None)
-            if children is not None:
-                q.extend(child["children"])
-                self.pad_with_space(child["children"])
-
-        return self.result
-
-    def pad_with_space(self, children):
-        # pad children with empty spaces. Slate requires the children array start and
-        # end with "texts", even if empty, this allows Slate to place a cursor
-        if len(children) == 0:
-            children.append({"text": ""})
-            return
-
-        if not children[0].get("text"):
-            children.insert(0, {"text": ""})
-        if not children[-1].get("text"):
-            children.append({"text": ""})
-
-    def handle_tag_body(self):
-        # TODO: implement me
-        pass
-
-    def handle_tag_code(self):
-        # TODO: implement me
-        pass
+from lxml.html import html5parser, tostring
 
 
 def is_whitespace(c):
@@ -215,27 +58,140 @@ def clean_whitespace(c):
     return c
 
 
-def html_fragment_to_slate(text, log=False):
-    # element = fragment_fromstring(text)
-    parser = HTML2SlateParser(log)
-    parser.feed(text)
-
-    return parser.end()
+def tag_name(el):
+    return el.tag.replace("{%s}" % el.nsmap["html"], "")
 
 
-# def html_page_to_slate(text):
-#     # element = document_fromstring(text)
-#     dom = parseString(text)
-#     return deserialize(element.find("body"))
+def deserialize(el):
+    tag = tag_name(el)
+    print(tag)
+    pass
 
-# if (el.getAttribute('data-slate-data')) {
-#   return typeDeserialize(editor, el);
-# }
-#
-# const { nodeName } = el;
-#
-# if (htmlTagsToSlate[nodeName]) {
-#   return htmlTagsToSlate[nodeName](editor, el);
-# }
-#
-# return deserializeChildren(el, editor); // fallback deserializer
+
+def is_inline(el):
+    # if isinstance(el, six.string_types):
+    #     return True
+    if isinstance(el, dict) and "text" in el:
+        return True
+
+    return False
+
+
+class Parser(object):
+    """A parser for HTML to slate conversion"""
+
+    def deserialize_children(self, node):
+        nodes = [node.text]
+        for child in node.iterchildren():
+            nodes.append(child)
+            nodes.append(child.tail)
+        # nodes.append(node.tail)
+
+        nodes = [self.deserialize(n) for n in nodes if n is not None]
+        return nodes
+
+    def handle_tag_br(self, node):
+        return {"text": "\n"}
+
+    def handle_block(self, node):
+        tag = tag_name(node)
+        # slate_data = node
+
+        return {"type": tag, "children": self.deserialize_children(node)}
+
+    def deserialize(self, node):
+        if isinstance(node, six.string_types):
+            if is_whitespace(node):
+                return None
+            return {"text": clean_whitespace(node)}
+
+        tagname = tag_name(node)
+        if tagname in KNOWN_BLOCK_TYPES:
+            handler = self.handle_block
+        else:
+            handler = getattr(self, "handle_tag_{}".format(tagname), None)
+        if handler:
+            element = handler(node)
+            # if node.tail:
+            #     return [element, self.deserialize(node.tail)]
+            return element
+
+        return self.deserialize_children(node)
+
+    def to_slate(self, text):
+        fragments = html5parser.fragments_fromstring(text)
+        nodes = []
+        for f in fragments:
+            if isinstance(f, six.string_types):
+                nodes.append(f)
+            else:
+                nodes.append(f)
+                if f.tail:
+                    nodes.append(f.tail)
+
+        value = list(filter(None, [self.deserialize(f) for f in nodes]))
+        return self.normalize(value)
+
+    def merge_adjacent_text_nodes(self, children):
+        ranges = []
+        for i, v in enumerate(children):
+            if "text" in v:
+                if ranges and ranges[-1][1] == i - 1:
+                    ranges[-1][1] = i
+                else:
+                    ranges.append([i, i])
+        text_positions = []
+        range_dict = {}
+        for start, end in ranges:
+            text_positions.extend(list(range(start, end + 1)))
+            range_dict[start] = end
+
+        result = []
+        for i, v in enumerate(children):
+            if i not in text_positions:
+                result.append(v)
+            if i in range_dict:
+                result.append(
+                    {
+                        "text": u"".join(
+                            [c["text"] for c in children[i : range_dict[i] + 1]]
+                        )
+                    }
+                )
+        return result
+
+    def normalize(self, value):
+        # all top-level elements in the value should be block tags
+        if value and is_inline(value[0]):
+            value = [{"type": "p", "children": value}]
+
+        q = deque(value)
+
+        while len(q):
+            child = q.pop()
+            children = child.get("children", None)
+            if children is not None:
+                # merge adjancent text nodes
+                child["children"] = self.merge_adjacent_text_nodes(child["children"])
+
+                q.extend(child["children"])
+                self.pad_with_space(child["children"])
+
+        return value
+
+    def pad_with_space(self, children):
+        # pad children with empty spaces. Slate requires the children array start and
+        # end with "texts", even if empty, this allows Slate to place a cursor
+        if len(children) == 0:
+            children.append({"text": ""})
+            return
+
+        if not children[0].get("text"):
+            children.insert(0, {"text": ""})
+        if not children[-1].get("text"):
+            children.append({"text": ""})
+
+
+def text_to_slate(text):
+    parser = Parser()
+    return parser.to_slate(text)
