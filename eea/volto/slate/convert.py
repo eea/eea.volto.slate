@@ -38,13 +38,16 @@ DEFAULT_BLOCK_TYPE = "p"
 
 
 class HTML2SlateParser(HTMLParser):
-    def __init__(self):
+    def __init__(self, log=False):
         super(HTML2SlateParser, self).__init__()
+        self.log = log
         self.result = []
         self.stack = deque([])
         self.level = 0
 
-    def _element(self, tag, attrs):
+    def slate_element(self, tag, attrs):
+        """A slate element builder"""
+
         element = {"type": tag, "children": []}
 
         if self.stack:
@@ -52,13 +55,13 @@ class HTML2SlateParser(HTMLParser):
             current["children"].append(element)
 
         self.stack.append(element)
-        return element
+        return element, True
 
     def handle_tag_a(self, tag, attrs):
         attrs = dict(attrs)
         link = attrs.get("href", "")
 
-        element = self._element(tag, attrs)
+        element, is_block_element = self.slate_element(tag, attrs)
         if link:
             if link.startswith("http") or link.startswith("//"):
                 # TODO: implement external link
@@ -76,58 +79,69 @@ class HTML2SlateParser(HTMLParser):
                     }
                 }
 
-        return element
-
-    def handle_tag_body(self):
-        pass
+        return element, True
 
     def handle_tag_br(self, tag, attrs):
         self.add_text("\n")
-        self.level -= 1
+        return None, False
 
     def handle_tag_b(self, tag, attrs):
         # <b> needs special handling
+        # TODO: implement me
 
-        return self._element(tag, attrs)
-
-    def handle_tag_code(self):
-        pass
+        return self.slate_element(tag, attrs)
 
     def handle_tag_span(self, tag, attrs):
-        # do nothing for now
-        pass
+        # TODO: implement me
+        return None, False
 
     def handle_some_block(self, tag, attrs):
         if tag not in KNOWN_BLOCK_TYPES:
             tag = DEFAULT_BLOCK_TYPE
 
-        return self._element(tag, attrs)
+        return self.slate_element(tag, attrs)
 
     def handle_starttag(self, tag, attrs):
-        # print("---Encountered a start tag:", tag, self.level)
+        if self.log:
+            print("---Encountered a start tag:", tag, self.level)
 
         attributes = dict(attrs)
 
         if attributes.get("data-slate-data"):
-            handler = self.handle_slate_data(tag, attrs)
+            handler = self.handle_slate_data
         else:
             handler = getattr(self, "handle_tag_{}".format(tag), self.handle_some_block)
 
-        element = handler(tag, attrs)
+        element, is_block_element = handler(tag, attrs)
 
-        if self.level == 0 and element is not None:
-            self.result.append(element)
-        self.level += 1
+        if element is not None:
+            if self.level == 0:
+                self.result.append(element)
+            self.level += 1
 
     def handle_endtag(self, tag):
         self.level -= 1
         self.stack.pop()
-        # print("---Encountered an end tag :", tag)
+        if self.log:
+            print("---Encountered an end tag :", tag, self.level)
 
     def handle_slate_data(self, tag, attrs):
+        if self.log:
+            print("---Handling Slate data tag:", tag, self.level)
+
         attributes = dict(attrs)
+
         element = json.loads(attributes["data-slate-data"])
-        return element
+        if "children" not in element:
+            element["children"] = []
+
+        if self.stack:
+            current = self.stack[-1]
+            current["children"].append(element)
+
+        self.stack.append(element)
+
+        return element, True
 
     def handle_data(self, data):
         """ Generic text handler, native HTML parser API """
@@ -136,7 +150,8 @@ class HTML2SlateParser(HTMLParser):
 
         text = clean_whitespace(data)
         self.add_text(text)
-        # print("---Encountered some data  :", text)
+        if self.log:
+            print("---Encountered some data  :", text)
 
     def add_text(self, text):
         current = self.stack[-1]
@@ -169,6 +184,14 @@ class HTML2SlateParser(HTMLParser):
         if not children[-1].get("text"):
             children.append({"text": ""})
 
+    def handle_tag_body(self):
+        # TODO: implement me
+        pass
+
+    def handle_tag_code(self):
+        # TODO: implement me
+        pass
+
 
 def is_whitespace(c):
     if not isinstance(c, six.string_types):
@@ -189,9 +212,9 @@ def clean_whitespace(c):
     return c
 
 
-def html_fragment_to_slate(text):
+def html_fragment_to_slate(text, log=False):
     # element = fragment_fromstring(text)
-    parser = HTML2SlateParser()
+    parser = HTML2SlateParser(log)
     parser.feed(text)
 
     return parser.end()
