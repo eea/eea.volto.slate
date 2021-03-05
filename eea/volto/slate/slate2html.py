@@ -34,6 +34,27 @@ class Slate2HTML(object):
             return res
         return [res]
 
+    def handle_tag_a(self, element):
+        internal_link = (
+            element.get("data", {})
+            .get("link", {})
+            .get("internal", {})
+            .get("internal_link", [])
+        )
+
+        attributes = {}
+
+        if internal_link:
+            attributes["href"] = internal_link[0]["@id"]
+
+        el = getattr(E, element["type"].upper())
+
+        children = []
+        for child in element["children"]:
+            children += self.serialize(child)
+
+        return el(*children, **attributes)
+
     def handle_slate_data_element(self, element):
         pass
 
