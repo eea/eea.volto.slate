@@ -12,6 +12,7 @@ from lxml.html import html5parser
 
 KNOWN_BLOCK_TYPES = [
     "a",
+    "b",
     "blockquote",
     "del",
     "em",
@@ -156,6 +157,10 @@ class Parser(object):
 
         return {"type": tag, "children": self.deserialize_children(node)}
 
+    # def handle_tag_b(self, node):
+    #     # TODO: implement <b> special cases
+    #     return self.handle_block(node)
+
     def handle_slate_data_element(self, node):
         element = json.loads(node.attrib["data-slate-data"])
         element["children"] = self.deserialize_children(node)
@@ -197,11 +202,10 @@ class Parser(object):
         return self.normalize(nodes)
 
     def normalize(self, value):
-
         assert isinstance(value, list)
         value = [v for v in value if v is not None]
 
-        # all top-level elements in the value should be block tags
+        # all top-level elements in the value need to be block tags
         if value and [x for x in value if is_inline(value[0])]:
             value = [{"type": DEFAULT_BLOCK_TYPE, "children": value}]
 
@@ -219,20 +223,9 @@ class Parser(object):
 
                 pad_with_space(child["children"])
 
-        # TODO: final normalize, make sure all top level elements are blocks
         return value
 
 
 def text_to_slate(text):
     parser = Parser()
     return parser.to_slate(text)
-
-    # for f in fragments:
-    #     if isinstance(f, six.string_types):
-    #         nodes.append(f)
-    #     else:
-    #         nodes.append(f)
-    #         if f.tail:
-    #             nodes.append(f.tail)
-    #
-    # value = list(filter(None, [self.deserialize(f) for f in nodes]))
