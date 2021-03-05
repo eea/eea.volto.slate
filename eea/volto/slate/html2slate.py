@@ -132,7 +132,7 @@ def pad_with_space(children):
         children.append({"text": ""})
 
 
-class Parser(object):
+class HTML2Slate(object):
     """A parser for HTML to slate conversion
 
     If you need to handle some custom slate markup, inherit and extend
@@ -265,4 +265,4 @@ class Parser(object):
 
 
 def text_to_slate(text):
-    return Parser().to_slate(text)
+    return HTML2Slate().to_slate(text)

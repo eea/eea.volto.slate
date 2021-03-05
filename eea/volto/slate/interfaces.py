@@ -14,3 +14,13 @@ class ISlateNodeSerializeTransform(Interface):
 
 class ISlateNodeDeserializeTransform(Interface):
     """Transformer on slate nodes deserialization (save to backend)"""
+
+
+class ISlateConverter(object):
+    """A convertor utility"""
+
+    def html2slate():
+        """ Convert HTML to slate value """
+
+    def slate2html():
+        """ Convert Slate value to slate HTML """

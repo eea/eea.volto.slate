@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
+
 import json
 import os
 import unittest
 
 from pkg_resources import resource_filename
 
-from eea.volto.slate.convert import (Parser, merge_adjacent_text_nodes,
-                                     text_to_slate)
+from eea.volto.slate.html2slate import merge_adjacent_text_nodes, text_to_slate
 
 
 def read_data(filename):
@@ -27,19 +27,15 @@ class TestConvert(unittest.TestCase):
     maxDiff = None
 
     def test_convert_simple_string(self):
-        parser = Parser()
-        res = parser.to_slate("Hello world")
+        res = text_to_slate("Hello world")
         self.assertEqual(res, [{"children": [{"text": "Hello world"}], "type": "p"}])
 
     def test_convert_simple_paragraph(self):
-        parser = Parser()
-
-        res = parser.to_slate("<p>Hello world</p>")
+        res = text_to_slate("<p>Hello world</p>")
         self.assertEqual(res, [{"children": [{"text": "Hello world"}], "type": "p"}])
 
     def test_convert_text_and_a_tag(self):
-        parser = Parser()
-        res = parser.to_slate("Hello <strong>world</strong> mixed <i>content</i>.")
+        res = text_to_slate("Hello <strong>world</strong> mixed <i>content</i>.")
 
         self.assertEqual(
             res,
