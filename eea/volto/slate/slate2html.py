@@ -4,10 +4,21 @@ from lxml.html import tostring
 from .config import DEFAULT_BLOCK_TYPE, KNOWN_BLOCK_TYPES
 
 
+def join(element, children):
+    res = []
+    for bit in children:
+        res.append(bit)
+        res.append(element)
+    return res[:-1]  # remove the last break
+
+
 class Slate2HTML(object):
     def serialize(self, element):
         if "text" in element:
-            return element["text"]
+            if "\n" not in element["text"]:
+                return [element["text"]]
+
+            return join(E.BR, element["text"].split("\n"))
 
         tagname = element["type"]
 
@@ -18,20 +29,30 @@ class Slate2HTML(object):
             if not handler and tagname in KNOWN_BLOCK_TYPES:
                 handler = self.handle_block
 
-        return handler(element)
+        res = handler(element)
+        if isinstance(res, list):
+            return res
+        return [res]
 
     def handle_slate_data_element(self, element):
         pass
 
     def handle_block(self, element):
         el = getattr(E, element["type"].upper())
-        return el(*[self.serialize(child) for child in element["children"]])
+
+        children = []
+        for child in element["children"]:
+            children += self.serialize(child)
+
+        return el(*children)
 
     def to_html(self, value):
-        fragments = [self.serialize(child) for child in value]
+        children = []
+        for child in value:
+            children += self.serialize(child)
 
         # TODO: handle unicode properly
-        return u"".join(tostring(f).decode("utf-8") for f in fragments)
+        return u"".join(tostring(f).decode("utf-8") for f in children)
 
 
 def slate_to_html(value):
