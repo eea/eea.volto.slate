@@ -177,33 +177,10 @@ class TestConvert(unittest.TestCase):
             read_json("7.json"),
         )
 
-    def test_multiple_slate_data_elements(self):
+    def test_wrapped_slate_data(self):
         text = read_data("8.html")
         res = text_to_slate(text)
         self.assertEqual(
             res,
-            [
-                {
-                    "children": [
-                        {"text": ""},
-                        {
-                            "children": [
-                                {"text": ""},
-                                {
-                                    "children": [{"text": "28.06"}],
-                                    "data": {
-                                        "column": "Land%cov",
-                                        "provider_url": "/data/statsforcountryprofile_bise.csv",
-                                    },
-                                    "type": "dataentity",
-                                },
-                                {"text": "%"},
-                            ],
-                            "type": "b",
-                        },
-                        {"text": " of land, "},
-                    ],
-                    "type": "p",
-                }
-            ],
+            read_json("8.json"),
         )

@@ -168,6 +168,9 @@ class Parser(object):
 
     def deserialize(self, node):
         " Deserialize a node into a _list_ of slate elements"
+        if node is None:
+            return []
+
         if isinstance(node, six.string_types):
             if is_whitespace(node):
                 return []
@@ -191,7 +194,11 @@ class Parser(object):
             return [element]
 
         # fallback, "skips" the node
-        return self.deserialize_children(node)
+        return self.handle_fallback(node)
+
+    def handle_fallback(self, node):
+        nodes = self.deserialize_children(node) + self.deserialize(node.tail)
+        return nodes
 
     def to_slate(self, text):
         fragments = html5parser.fragments_fromstring(text)
