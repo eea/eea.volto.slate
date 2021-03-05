@@ -38,14 +38,22 @@ KNOWN_BLOCK_TYPES = [
 DEFAULT_BLOCK_TYPE = "p"
 
 
-def is_whitespace(c):
-    if not isinstance(c, six.string_types):
+def is_whitespace(text):
+    " Returns true if the text is only whitespace characters"
+
+    if not isinstance(text, six.string_types):
         return False
 
-    return len(re.sub(r"\s|\t|\n", "", c)) == 0
+    return len(re.sub(r"\s|\t|\n", "", text)) == 0
 
 
 def clean_whitespace(c):
+    """Cleans up non-significant whitespace text.
+
+    - remove tabs, they're not usable in html
+    - replace new lines with a whitespace (this is how browsers would render)
+    """
+
     funcs = [
         lambda t: re.sub(r"\n$", " ", t),
         lambda t: re.sub(r"\n", " ", t),
@@ -54,6 +62,7 @@ def clean_whitespace(c):
     for f in funcs:
         c = f(c)
 
+    # TODO: collapse multiple \n to a single space?
     return c
 
 
@@ -62,8 +71,17 @@ def tag_name(el):
 
 
 def is_inline(el):
-    # if isinstance(el, six.string_types):
-    #     return True
+    """Returns true if the element is a text node
+
+    Some richtext editors provide support for "inline elements", which is to say they
+    mark some portions of text and add flags for that, like "bold:true,italic:true",
+    etc.
+
+    From experience, this is a bad way to go when the output is intended to be HTML. In
+    HTML DOM there is only markup and that markup is semantic. So keeping it purely
+    markup greately simplifies the number of cases that need to be covered.
+    """
+
     if isinstance(el, dict) and "text" in el:
         return True
 
@@ -71,6 +89,8 @@ def is_inline(el):
 
 
 def merge_adjacent_text_nodes(children):
+    " Given a list of Slate elements, it combines adjacent texts nodes"
+
     ranges = []
     for i, v in enumerate(children):
         if "text" in v:
@@ -96,8 +116,12 @@ def merge_adjacent_text_nodes(children):
 
 
 def pad_with_space(children):
-    # pad children with empty spaces. Slate requires the children array start and
-    # end with "texts", even if empty, this allows Slate to place a cursor
+    """Mutate the children array in-place. It pads them with 'empty spaces'.
+
+    Slate requires the children array to start and end with "texts", even if empty, this
+    allows Slate to place a cursor
+    """
+
     if len(children) == 0:
         children.append({"text": ""})
         return
@@ -109,7 +133,20 @@ def pad_with_space(children):
 
 
 class Parser(object):
-    """A parser for HTML to slate conversion"""
+    """A parser for HTML to slate conversion
+
+    If you need to handle some custom slate markup, inherit and extend
+    """
+
+    def to_slate(self, text):
+        " Convert text to a slate value. A slate value is a list of elements "
+
+        fragments = html5parser.fragments_fromstring(text)
+        nodes = []
+        for f in fragments:
+            nodes += self.deserialize(f)
+
+        return self.normalize(nodes)
 
     def deserialize_children(self, node):
         nodes = [node.text]
@@ -122,6 +159,7 @@ class Parser(object):
         for x in nodes:
             if x is not None:
                 res += self.deserialize(x)
+
         return res
 
     def handle_tag_a(self, node):
@@ -152,10 +190,7 @@ class Parser(object):
         return {"text": "\n"}
 
     def handle_block(self, node):
-        tag = tag_name(node)
-        # slate_data = node
-
-        return {"type": tag, "children": self.deserialize_children(node)}
+        return {"type": tag_name(node), "children": self.deserialize_children(node)}
 
     # def handle_tag_b(self, node):
     #     # TODO: implement <b> special cases
@@ -168,6 +203,7 @@ class Parser(object):
 
     def deserialize(self, node):
         " Deserialize a node into a _list_ of slate elements"
+
         if node is None:
             return []
 
@@ -197,18 +233,14 @@ class Parser(object):
         return self.handle_fallback(node)
 
     def handle_fallback(self, node):
+        " Unknown tags (for example span) are handled as pipe-through "
+
         nodes = self.deserialize_children(node) + self.deserialize(node.tail)
         return nodes
 
-    def to_slate(self, text):
-        fragments = html5parser.fragments_fromstring(text)
-        nodes = []
-        for f in fragments:
-            nodes += self.deserialize(f)
-
-        return self.normalize(nodes)
-
     def normalize(self, value):
+        " Normalize value to match Slate constraints "
+
         assert isinstance(value, list)
         value = [v for v in value if v is not None]
 
@@ -216,17 +248,16 @@ class Parser(object):
         if value and [x for x in value if is_inline(value[0])]:
             value = [{"type": DEFAULT_BLOCK_TYPE, "children": value}]
 
-        q = deque(value)
+        stack = deque(value)
 
-        while len(q):
-            child = q.pop()
+        while len(stack):
+            child = stack.pop()
             children = child.get("children", None)
             if children is not None:
                 children = [c for c in children if c]
-                # merge adjancent text nodes
+                # merge adjacent text nodes
                 child["children"] = merge_adjacent_text_nodes(children)
-
-                q.extend(child["children"])
+                stack.extend(child["children"])
 
                 pad_with_space(child["children"])
 
@@ -234,5 +265,4 @@ class Parser(object):
 
 
 def text_to_slate(text):
-    parser = Parser()
-    return parser.to_slate(text)
+    return Parser().to_slate(text)
