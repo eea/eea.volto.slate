@@ -16,7 +16,7 @@ class ISlateNodeDeserializeTransform(Interface):
     """Transformer on slate nodes deserialization (save to backend)"""
 
 
-class ISlateConverter(object):
+class ISlateConverter(Interface):
     """A convertor utility"""
 
     def html2slate():

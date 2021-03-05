@@ -10,6 +10,13 @@
   <include package=".browser" />
   <include package=".upgrades" />
 
+  <include file="htmlblock.zcml" />
+
+  <utility
+      factory=".utility.SlateConverter"
+      provides=".interfaces.ISlateConverter"
+      />
+
   <adapter
       factory=".indexers.SlateTextIndexer"
       provides="plone.restapi.interfaces.IBlockSearchableText"
