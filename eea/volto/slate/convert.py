@@ -123,6 +123,30 @@ class Parser(object):
                 res += self.deserialize(x)
         return res
 
+    def handle_tag_a(self, node):
+        attrs = node.attrib
+        link = attrs.get("href", "")
+
+        element = {"type": "a", "children": self.deserialize_children(node)}
+        if link:
+            if link.startswith("http") or link.startswith("//"):
+                # TODO: implement external link
+                pass
+            else:
+                element["data"] = {
+                    "link": {
+                        "internal": {
+                            "internal_link": [
+                                {
+                                    "@id": link,
+                                }
+                            ]
+                        }
+                    }
+                }
+
+        return element
+
     def handle_tag_br(self, node):
         return {"text": "\n"}
 
@@ -140,10 +164,9 @@ class Parser(object):
             return [{"text": clean_whitespace(node)}]
 
         tagname = tag_name(node)
-        if tagname in KNOWN_BLOCK_TYPES:
+        handler = getattr(self, "handle_tag_{}".format(tagname), None)
+        if not handler and tagname in KNOWN_BLOCK_TYPES:
             handler = self.handle_block
-        else:
-            handler = getattr(self, "handle_tag_{}".format(tagname), None)
         if handler:
             element = handler(node)
             if node.tail and clean_whitespace(node.tail):

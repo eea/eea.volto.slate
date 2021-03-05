@@ -112,21 +112,13 @@ class TestConvert(unittest.TestCase):
             read_json("2.json"),
         )
 
-    # def test_convert_slate_output_markup(self):
-    #     text = read_data("5.html")
-    #     res = html_fragment_to_slate(text)
-    #
-    #     self.assertEqual(
-    #         res,
-    #         read_json("5.json"),
-    #     )
-
     def test_one_list_item(self):
         text = """<li>      <a
         href="/case-study-hub/CS-brown-bears-Italy">Brown bear (<em>ursus arctos</em>) in Italy</a>
         </li>
         </ul>"""
         res = text_to_slate(text)
+
         self.assertEqual(
             res,
             [
@@ -139,6 +131,17 @@ class TestConvert(unittest.TestCase):
                                 {"children": [{"text": "ursus arctos"}], "type": "em"},
                                 {"text": ") in Italy"},
                             ],
+                            "data": {
+                                "link": {
+                                    "internal": {
+                                        "internal_link": [
+                                            {
+                                                "@id": "/case-study-hub/CS-brown-bears-Italy"
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
                             "type": "a",
                         },
                         {"text": ""},
@@ -148,14 +151,23 @@ class TestConvert(unittest.TestCase):
             ],
         )
 
-    # def test_slate_list(self):
-    #     text = read_data("6.html")
-    #     res = text_to_slate(text)
+    # def test_convert_slate_output_markup(self):
+    #     text = read_data("5.html")
+    #     res = html_fragment_to_slate(text)
     #
     #     self.assertEqual(
     #         res,
-    #         read_json("6.json"),
+    #         read_json("5.json"),
     #     )
+
+    def test_slate_list(self):
+        text = read_data("6.html")
+        res = text_to_slate(text)
+
+        self.assertEqual(
+            res,
+            read_json("6.json"),
+        )
 
     # def test_slate_data(self):
     #     text = read_data("7.html")
