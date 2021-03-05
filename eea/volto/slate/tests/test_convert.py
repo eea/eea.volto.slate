@@ -151,14 +151,14 @@ class TestConvert(unittest.TestCase):
             ],
         )
 
-    # def test_convert_slate_output_markup(self):
-    #     text = read_data("5.html")
-    #     res = html_fragment_to_slate(text)
-    #
-    #     self.assertEqual(
-    #         res,
-    #         read_json("5.json"),
-    #     )
+    def test_convert_slate_output_markup(self):
+        text = read_data("5.html")
+        res = text_to_slate(text)
+
+        self.assertEqual(
+            res,
+            read_json("5.json"),
+        )
 
     def test_slate_list(self):
         text = read_data("6.html")
@@ -169,9 +169,10 @@ class TestConvert(unittest.TestCase):
             read_json("6.json"),
         )
 
-    # def test_slate_data(self):
-    #     text = read_data("7.html")
-    #     res = html_fragment_to_slate(text, log=True)
-    #     import pdb
-    #
-    #     pdb.set_trace()
+    def test_slate_data(self):
+        text = read_data("7.html")
+        res = text_to_slate(text)
+        self.assertEqual(
+            res,
+            read_json("7.json"),
+        )

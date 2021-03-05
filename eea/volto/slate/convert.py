@@ -156,6 +156,11 @@ class Parser(object):
 
         return {"type": tag, "children": self.deserialize_children(node)}
 
+    def handle_slate_data_element(self, node):
+        element = json.loads(node.attrib["data-slate-data"])
+        element["children"] = self.deserialize_children(node)
+        return element
+
     def deserialize(self, node):
         " Deserialize a node into a _list_ of slate elements"
         if isinstance(node, six.string_types):
@@ -164,9 +169,16 @@ class Parser(object):
             return [{"text": clean_whitespace(node)}]
 
         tagname = tag_name(node)
-        handler = getattr(self, "handle_tag_{}".format(tagname), None)
-        if not handler and tagname in KNOWN_BLOCK_TYPES:
-            handler = self.handle_block
+
+        handler = None
+
+        if node.attrib.get("data-slate-data"):
+            handler = self.handle_slate_data_element
+        else:
+            handler = getattr(self, "handle_tag_{}".format(tagname), None)
+            if not handler and tagname in KNOWN_BLOCK_TYPES:
+                handler = self.handle_block
+
         if handler:
             element = handler(node)
             if node.tail and clean_whitespace(node.tail):
