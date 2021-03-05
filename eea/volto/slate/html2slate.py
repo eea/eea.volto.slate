@@ -10,32 +10,7 @@ from collections import deque
 import six
 from lxml.html import html5parser
 
-KNOWN_BLOCK_TYPES = [
-    "a",
-    "b",
-    "blockquote",
-    "del",
-    "em",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "i",
-    "li",
-    "ol",
-    "p",
-    "pre",
-    "s",
-    "strong",
-    "sub",
-    "sup",
-    "u",
-    "ul",
-]
-
-DEFAULT_BLOCK_TYPE = "p"
+from .config import DEFAULT_BLOCK_TYPE, KNOWN_BLOCK_TYPES
 
 
 def is_whitespace(text):

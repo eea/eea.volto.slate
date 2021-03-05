@@ -23,7 +23,7 @@ def read_json(filename):
         return json.load(f)
 
 
-class TestConvert(unittest.TestCase):
+class TestConvertHTML2Slate(unittest.TestCase):
     maxDiff = None
 
     def test_convert_simple_string(self):
