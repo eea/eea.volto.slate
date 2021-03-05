@@ -5,12 +5,9 @@ import os
 import re
 import unittest
 
-import six
-from bs4 import BeautifulSoup
-from lxml.html import fragments_fromstring, tostring
-from lxml.html.clean import clean_html
 from pkg_resources import resource_filename
 
+from eea.volto.slate.html2slate import text_to_slate
 from eea.volto.slate.slate2html import slate_to_html
 
 
@@ -33,18 +30,6 @@ def clean_whitespace(html):
     html = re.sub(r"\s+", " ", html)
     html = html.replace("> <", "><")
     return html
-
-
-#
-#
-# def is_html_equal(proba_a, proba_b, debug=False):
-#     a = clean_whitespace(proba_a)
-#     b = clean_whitespace(proba_b)
-#     if debug:
-#         import pdb
-#
-#         pdb.set_trace()
-#     return a == b
 
 
 class TestConvertSlate2HTML(unittest.TestCase):
@@ -163,3 +148,32 @@ class TestConvertSlate2HTML(unittest.TestCase):
             res,
             text,
         )
+
+    def test_convert_slate_output_markup(self):
+        slate = read_json("5.json")
+        res = slate_to_html(slate).strip()
+
+        html = read_data("5.html").strip()
+        self.assertEqual(res, html)
+
+    def test_slate_list(self):
+        slate = read_json("6.json")
+        res = slate_to_html(slate).strip()
+        html = read_data("6-1.html").strip()
+        self.assertEqual(res, html)
+
+    def test_slate_data(self):
+        slate = read_json("7.json")
+        html = slate_to_html(slate).strip()
+
+        self.assertTrue("<span data-slate-data=" in html)
+
+        self.assertEqual(text_to_slate(html), slate)
+
+    def test_wrapped_slate_data(self):
+        slate = read_json("8.json")
+        html = slate_to_html(slate).strip()
+
+        self.assertTrue("<span data-slate-data=" in html)
+
+        self.assertEqual(text_to_slate(html), slate)

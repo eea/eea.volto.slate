@@ -1,7 +1,9 @@
+import json
+
 from lxml.html import builder as E
 from lxml.html import tostring
 
-from .config import DEFAULT_BLOCK_TYPE, KNOWN_BLOCK_TYPES
+from .config import KNOWN_BLOCK_TYPES
 
 
 def join(element, children):
@@ -22,7 +24,7 @@ class Slate2HTML(object):
 
         tagname = element["type"]
 
-        if element.get("data-slate-data"):
+        if element.get("data") and element["type"] not in KNOWN_BLOCK_TYPES:
             handler = self.handle_slate_data_element
         else:
             handler = getattr(self, "handle_tag_{}".format(tagname), None)
@@ -56,7 +58,16 @@ class Slate2HTML(object):
         return el(*children, **attributes)
 
     def handle_slate_data_element(self, element):
-        pass
+        el = E.SPAN
+
+        children = []
+        for child in element["children"]:
+            children += self.serialize(child)
+
+        data = {"type": element["type"], "data": element["data"]}
+        attributes = {"data-slate-data": json.dumps(data)}
+
+        return el(*children, **attributes)
 
     def handle_block(self, element):
         el = getattr(E, element["type"].upper())
