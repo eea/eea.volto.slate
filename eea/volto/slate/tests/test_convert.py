@@ -5,7 +5,7 @@ import unittest
 
 from pkg_resources import resource_filename
 
-from eea.volto.slate.convert import (Parser,  # convert_jsx_to_json,
+from eea.volto.slate.convert import (Parser, merge_adjacent_text_nodes,
                                      text_to_slate)
 
 
@@ -58,14 +58,12 @@ class TestConvert(unittest.TestCase):
         )
 
     def test_merge_text_nodes(self):
-        p = Parser()
-
         q = [{"text": "a"}, {"text": "b"}, {"text": "c"}]
-        res = p.merge_adjacent_text_nodes(q)
+        res = merge_adjacent_text_nodes(q)
         self.assertEqual(res, [{"text": "abc"}])
 
         q = [{"text": "a"}, {"type": "m"}, {"text": "b"}, {"text": "c"}]
-        res = p.merge_adjacent_text_nodes(q)
+        res = merge_adjacent_text_nodes(q)
         self.assertEqual(
             res,
             [
@@ -84,7 +82,7 @@ class TestConvert(unittest.TestCase):
             {"text": "d"},
             {"text": "e"},
         ]
-        res = p.merge_adjacent_text_nodes(q)
+        res = merge_adjacent_text_nodes(q)
         self.assertEqual(
             res,
             [
@@ -105,16 +103,15 @@ class TestConvert(unittest.TestCase):
             read_json("1.json"),
         )
 
-    #
-    # def test_convert_case_multiple_p(self):
-    #     text = read_data("2.html")
-    #     res = html_fragment_to_slate(text)
-    #
-    #     self.assertEqual(
-    #         res,
-    #         read_json("2.json"),
-    #     )
-    #
+    def test_convert_case_multiple_p(self):
+        text = read_data("2.html")
+        res = text_to_slate(text)
+
+        self.assertEqual(
+            res,
+            read_json("2.json"),
+        )
+
     # def test_convert_slate_output_markup(self):
     #     text = read_data("5.html")
     #     res = html_fragment_to_slate(text)
@@ -123,10 +120,37 @@ class TestConvert(unittest.TestCase):
     #         res,
     #         read_json("5.json"),
     #     )
-    #
+
+    def test_one_list_item(self):
+        text = """<li>      <a
+        href="/case-study-hub/CS-brown-bears-Italy">Brown bear (<em>ursus arctos</em>) in Italy</a>
+        </li>
+        </ul>"""
+        res = text_to_slate(text)
+        self.assertEqual(
+            res,
+            [
+                {
+                    "children": [
+                        {"text": ""},
+                        {
+                            "children": [
+                                {"text": "Brown bear ("},
+                                {"children": [{"text": "ursus arctos"}], "type": "em"},
+                                {"text": ") in Italy"},
+                            ],
+                            "type": "a",
+                        },
+                        {"text": ""},
+                    ],
+                    "type": "li",
+                }
+            ],
+        )
+
     # def test_slate_list(self):
     #     text = read_data("6.html")
-    #     res = html_fragment_to_slate(text)
+    #     res = text_to_slate(text)
     #
     #     self.assertEqual(
     #         res,
