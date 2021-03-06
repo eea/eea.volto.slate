@@ -90,23 +90,6 @@ def merge_adjacent_text_nodes(children):
     return result
 
 
-def pad_with_space(children):
-    """Mutate the children array in-place. It pads them with 'empty spaces'.
-
-    Slate requires the children array to start and end with "texts", even if empty, this
-    allows Slate to place a cursor
-    """
-
-    if len(children) == 0:
-        children.append({"text": ""})
-        return
-
-    if not children[0].get("text"):
-        children.insert(0, {"text": ""})
-    if not children[-1].get("text"):
-        children.append({"text": ""})
-
-
 class HTML2Slate(object):
     """A parser for HTML to slate conversion
 
@@ -234,9 +217,36 @@ class HTML2Slate(object):
                 child["children"] = merge_adjacent_text_nodes(children)
                 stack.extend(child["children"])
 
-                pad_with_space(child["children"])
+                # self._pad_with_space(child["children"])
 
         return value
+
+    def _pad_with_space(children):
+        """Mutate the children array in-place. It pads them with 'empty spaces'.
+
+        Extract from Slate docs:
+        https://docs.slatejs.org/concepts/02-nodes#blocks-vs-inlines
+
+        You can define which nodes are treated as inline nodes by overriding the
+        editor.isInline function. (By default it always returns false.) Note that inline
+        nodes cannot be the first or last child of a parent block, nor can it be next to
+        another inline node in the children array. Slate will automatically space these
+        with { text: '' } children by default with normalizeNode.
+
+        Elements can either contain block elements or inline elements intermingled with
+        text nodes as children. But elements cannot contain some children that are
+        blocks and some that are inlines.
+        """
+
+        # TODO: needs reimplementation according to above info
+        if len(children) == 0:
+            children.append({"text": ""})
+            return
+
+        if not children[0].get("text"):
+            children.insert(0, {"text": ""})
+        if not children[-1].get("text"):
+            children.append({"text": ""})
 
 
 def text_to_slate(text):
