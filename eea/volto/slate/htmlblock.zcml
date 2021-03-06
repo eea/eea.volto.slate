@@ -10,7 +10,7 @@
       />
 
   <subscriber
-      factory=".htmlblock.SlateHTMLBlockSerializer"
+      factory=".htmlblock.SlateHTMLBlockSerializerRoot"
       provides="plone.restapi.interfaces.IBlockFieldSerializationTransformer"
       />
 

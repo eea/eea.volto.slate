@@ -1,5 +1,6 @@
 import os
 
+import six
 from plone import api
 from plone.restapi.behaviors import IBlocks
 from plone.restapi.deserializer.blocks import path2uid
@@ -27,12 +28,19 @@ def transform_links(context, value, transformer):
 
 
 class SlateBlockTransformer(object):
+    field = "value"
+
     def __init__(self, context, request):
         self.context = context
         self.request = request
 
     def __call__(self, block):
-        for child in iterate_children(block["value"] or []):
+        if isinstance(block["value"], six.string_types):
+            import pdb
+
+            pdb.set_trace()
+
+        for child in iterate_children(block[self.field] or []):
             node_type = child.get("type")
             if node_type:
                 handler = getattr(self, "handle_{}".format(node_type), None)

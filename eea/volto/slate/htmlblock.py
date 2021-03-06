@@ -19,7 +19,7 @@ class SlateHTMLBlockSerializer(object):
     """ Serialize the content of an HTML block as Slate value """
 
     field = "value"
-    order = 1000
+    order = -1000  # should be the first
     block_type = "slate"
 
     def __init__(self, context, request):
@@ -29,12 +29,13 @@ class SlateHTMLBlockSerializer(object):
     def __call__(self, block):
 
         value = block[self.field]
-        return getUtility(ISlateConverter).slate2html(value)
+        block["value"] = getUtility(ISlateConverter).html2slate(value)
+        return block
 
 
 @implementer(IBlockFieldSerializationTransformer)
 @adapter(IPloneSiteRoot, IBrowserRequest)
-class SlateBlockSerializerRoot(SlateHTMLBlockSerializer):
+class SlateHTMLBlockSerializerRoot(SlateHTMLBlockSerializer):
     """ Serializer for site root """
 
 
@@ -44,7 +45,7 @@ class SlateHTMLBlockDeserializer(object):
     """ Store a slate value as an HTML """
 
     field = "value"
-    order = 1000
+    order = 1000  # needs to be the last
     block_type = "slate"
 
     def __init__(self, context, request):
@@ -54,7 +55,8 @@ class SlateHTMLBlockDeserializer(object):
     def __call__(self, block):
 
         value = block[self.field]
-        return getUtility(ISlateConverter).html2slate(value)
+        block["value"] = getUtility(ISlateConverter).slate2html(value)
+        return block
 
 
 @adapter(IPloneSiteRoot, IBrowserRequest)
