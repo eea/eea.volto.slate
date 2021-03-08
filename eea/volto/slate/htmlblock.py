@@ -28,7 +28,7 @@ class SlateHTMLBlockSerializer(object):
 
     def __call__(self, block):
 
-        value = block[self.field]
+        value = getattr(block, self.field, [])
         block["value"] = getUtility(ISlateConverter).html2slate(value)
         return block
 
@@ -54,7 +54,7 @@ class SlateHTMLBlockDeserializer(object):
 
     def __call__(self, block):
 
-        value = block[self.field]
+        value = getattr(block, self.field, [])
         block["value"] = getUtility(ISlateConverter).slate2html(value)
         return block
 
