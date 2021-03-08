@@ -35,12 +35,13 @@ class SlateBlockTransformer(object):
         self.request = request
 
     def __call__(self, block):
-        if isinstance(block["value"], six.string_types):
-            import pdb
+        # if isinstance(block["value"], six.string_types):
+        #     import pdb
+        #
+        #     pdb.set_trace()
 
-            pdb.set_trace()
-
-        for child in iterate_children(block[self.field] or []):
+        value = getattr(block, self.field, [])
+        for child in iterate_children(value or []):
             node_type = child.get("type")
             if node_type:
                 handler = getattr(self, "handle_{}".format(node_type), None)
