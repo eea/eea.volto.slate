@@ -2,11 +2,11 @@
 """
 # pylint: disable=import-error,no-name-in-module,too-few-public-methods,
 # pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
+import plone.restapi
 from plone.app.testing import (TEST_USER_ID, FunctionalTesting,
                                PloneSandboxLayer, applyProfile, setRoles)
 from plone.testing import z2
 from Products.CMFPlone import setuphandlers
-import plone.restapi
 import eea.volto.slate
 
 

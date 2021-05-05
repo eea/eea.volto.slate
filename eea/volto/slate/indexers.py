@@ -1,5 +1,5 @@
 """ indexers module """
-# pylint: disable=too-few-public-methods,useless-object-inheritance
+# pylint: disable=too-few-public-methods
 
 
 class SlateTextIndexer(object):

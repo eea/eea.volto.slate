@@ -1,5 +1,5 @@
 """ utilities module """
-# pylint: disable=no-self-use,useless-object-inheritance
+# pylint: disable=no-self-use
 from .html2slate import text_to_slate
 from .slate2html import slate_to_html
 

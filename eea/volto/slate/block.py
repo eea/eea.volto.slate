@@ -29,7 +29,7 @@ def transform_links(context, value, transformer):
             link["@id"] = transformer(context, link["@id"])
 
 
-class SlateBlockTransformer():
+class SlateBlockTransformer(object):
     """SlateBlockTransformer."""
 
     field = "value"
