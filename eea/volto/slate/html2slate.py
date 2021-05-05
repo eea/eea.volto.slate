@@ -48,13 +48,14 @@ def tag_name(el):
 def is_inline(el):
     """Returns true if the element is a text node
 
-    Some richtext editors provide support for "inline elements", which is to say they
-    mark some portions of text and add flags for that, like "bold:true,italic:true",
-    etc.
+    Some richtext editors provide support for "inline elements", which is to
+    say they mark some portions of text and add flags for that, like
+    "bold:true,italic:true", etc.
 
-    From experience, this is a bad way to go when the output is intended to be HTML. In
-    HTML DOM there is only markup and that markup is semantic. So keeping it purely
-    markup greately simplifies the number of cases that need to be covered.
+    From experience, this is a bad way to go when the output is intended to be
+    HTML. In HTML DOM there is only markup and that markup is semantic. So
+    keeping it purely markup greately simplifies the number of cases that need
+    to be covered.
     """
 
     if isinstance(el, dict) and "text" in el:
@@ -85,7 +86,8 @@ def merge_adjacent_text_nodes(children):
             result.append(v)
         if i in range_dict:
             result.append(
-                {"text": u"".join([c["text"] for c in children[i : range_dict[i] + 1]])}
+                {"text": u"".join([c["text"]
+                 for c in children[i: range_dict[i] + 1]])}
             )
     return result
 
@@ -148,7 +150,8 @@ class HTML2Slate(object):
         return {"text": "\n"}
 
     def handle_block(self, node):
-        return {"type": tag_name(node), "children": self.deserialize_children(node)}
+        return {"type": tag_name(node),
+                "children": self.deserialize_children(node)}
 
     # def handle_tag_b(self, node):
     #     # TODO: implement <b> special cases
@@ -222,20 +225,22 @@ class HTML2Slate(object):
         return value
 
     def _pad_with_space(children):
-        """Mutate the children array in-place. It pads them with 'empty spaces'.
+        """ Mutate the children array in-place. It pads them with
+        'empty spaces'.
 
         Extract from Slate docs:
         https://docs.slatejs.org/concepts/02-nodes#blocks-vs-inlines
 
-        You can define which nodes are treated as inline nodes by overriding the
-        editor.isInline function. (By default it always returns false.) Note that inline
-        nodes cannot be the first or last child of a parent block, nor can it be next to
-        another inline node in the children array. Slate will automatically space these
-        with { text: '' } children by default with normalizeNode.
+        You can define which nodes are treated as inline nodes by overriding
+        the editor.isInline function. (By default it always returns false.).
+        Note that inline nodes cannot be the first or last child of a parent
+        block, nor can it be next to another inline node in the children array.
+        Slate will automatically space these with { text: '' } children by
+        default with normalizeNode.
 
-        Elements can either contain block elements or inline elements intermingled with
-        text nodes as children. But elements cannot contain some children that are
-        blocks and some that are inlines.
+        Elements can either contain block elements or inline elements
+        intermingled with text nodes as children. But elements cannot contain
+        some children that are blocks and some that are inlines.
         """
 
         # TODO: needs reimplementation according to above info
