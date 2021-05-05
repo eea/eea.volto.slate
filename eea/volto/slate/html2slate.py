@@ -2,6 +2,9 @@
 
 A port of volto-slate' deserialize.js module
 """
+# pylint: disable=import-error,no-name-in-module,too-few-public-methods,
+# pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
+# pylint: disable=import-outside-toplevel
 
 import json
 import re
@@ -37,11 +40,15 @@ def clean_whitespace(c):
     for f in funcs:
         c = f(c)
 
-    # TODO: collapse multiple \n to a single space?
+    # TO DO: collapse multiple \n to a single space?
     return c
 
 
 def tag_name(el):
+    """tag_name.
+
+    :param el:
+    """
     return el.tag.replace("{%s}" % el.nsmap["html"], "")
 
 
@@ -87,12 +94,12 @@ def merge_adjacent_text_nodes(children):
         if i in range_dict:
             result.append(
                 {"text": u"".join([c["text"]
-                 for c in children[i: range_dict[i] + 1]])}
+                                   for c in children[i: range_dict[i] + 1]])}
             )
     return result
 
 
-class HTML2Slate(object):
+class HTML2Slate():
     """A parser for HTML to slate conversion
 
     If you need to handle some custom slate markup, inherit and extend
@@ -109,6 +116,10 @@ class HTML2Slate(object):
         return self.normalize(nodes)
 
     def deserialize_children(self, node):
+        """deserialize_children.
+
+        :param node:
+        """
         nodes = [node.text]
         for child in node.iterchildren():
             nodes.append(child)
@@ -123,13 +134,17 @@ class HTML2Slate(object):
         return res
 
     def handle_tag_a(self, node):
+        """handle_tag_a.
+
+        :param node:
+        """
         attrs = node.attrib
         link = attrs.get("href", "")
 
         element = {"type": "a", "children": self.deserialize_children(node)}
         if link:
             if link.startswith("http") or link.startswith("//"):
-                # TODO: implement external link
+                # TO DO: implement external link
                 pass
             else:
                 element["data"] = {
@@ -147,17 +162,29 @@ class HTML2Slate(object):
         return element
 
     def handle_tag_br(self, node):
+        """handle_tag_br.
+
+        :param node:
+        """
         return {"text": "\n"}
 
     def handle_block(self, node):
+        """handle_block.
+
+        :param node:
+        """
         return {"type": tag_name(node),
                 "children": self.deserialize_children(node)}
 
     # def handle_tag_b(self, node):
-    #     # TODO: implement <b> special cases
+    #     # TO DO: implement <b> special cases
     #     return self.handle_block(node)
 
     def handle_slate_data_element(self, node):
+        """handle_slate_data_element.
+
+        :param node:
+        """
         element = json.loads(node.attrib["data-slate-data"])
         element["children"] = self.deserialize_children(node)
         return element
@@ -211,7 +238,7 @@ class HTML2Slate(object):
 
         stack = deque(value)
 
-        while len(stack):
+        while stack:
             child = stack.pop()
             children = child.get("children", None)
             if children is not None:
@@ -224,7 +251,7 @@ class HTML2Slate(object):
 
         return value
 
-    def _pad_with_space(children):
+    def _pad_with_space(self, children):
         """ Mutate the children array in-place. It pads them with
         'empty spaces'.
 
@@ -243,7 +270,7 @@ class HTML2Slate(object):
         some children that are blocks and some that are inlines.
         """
 
-        # TODO: needs reimplementation according to above info
+        # TO DO: needs reimplementation according to above info
         if len(children) == 0:
             children.append({"text": ""})
             return
@@ -255,4 +282,8 @@ class HTML2Slate(object):
 
 
 def text_to_slate(text):
+    """text_to_slate.
+
+    :param text:
+    """
     return HTML2Slate().to_slate(text)

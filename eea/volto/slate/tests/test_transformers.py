@@ -1,7 +1,11 @@
+""" test tranformers module """
+# pylint: disable=import-error,no-name-in-module,too-few-public-methods,
+# pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
 # -*- coding: utf-8 -*-
 import json
 import unittest
 
+from zope.component import getMultiAdapter, queryUtility
 import transaction
 from plone.app.testing import TEST_USER_ID, setRoles
 from plone.dexterity.interfaces import IDexterityFTI
@@ -9,12 +13,12 @@ from plone.dexterity.utils import createContentInContainer, iterSchemata
 from plone.restapi.interfaces import IDeserializeFromJson, IFieldSerializer
 from plone.uuid.interfaces import IUUID
 from z3c.form.interfaces import IDataManager
-from zope.component import getMultiAdapter, queryUtility
 
 from eea.volto.slate.tests.base import FUNCTIONAL_TESTING
 
 
 class TestBlockTransformers(unittest.TestCase):
+    """TestBlockTransformers."""
 
     layer = FUNCTIONAL_TESTING
 
@@ -26,7 +30,7 @@ class TestBlockTransformers(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ["Manager"])
 
         fti = queryUtility(IDexterityFTI, name="Document")
-        behavior_list = [a for a in fti.behaviors]
+        behavior_list = list(fti.behaviors)
         behavior_list.append("volto.blocks")
         fti.behaviors = tuple(behavior_list)
 
@@ -36,6 +40,12 @@ class TestBlockTransformers(unittest.TestCase):
         transaction.commit()
 
     def deserialize(self, blocks=None, validate_all=False, context=None):
+        """deserialize.
+
+        :param blocks:
+        :param validate_all:
+        :param context:
+        """
         blocks = blocks or ""
         context = context or self.portal.doc
         self.request["BODY"] = json.dumps({"blocks": blocks})
@@ -44,6 +54,11 @@ class TestBlockTransformers(unittest.TestCase):
         return deserializer(validate_all=validate_all)
 
     def serialize(self, context, blocks):
+        """serialize.
+
+        :param context:
+        :param blocks:
+        """
         fieldname = "blocks"
         for schema in iterSchemata(context):
             if fieldname in schema:
@@ -55,6 +70,7 @@ class TestBlockTransformers(unittest.TestCase):
         return serializer()
 
     def test_internal_link_deserializer(self):
+        """test_internal_link_deserializer."""
         blocks = {
             "2caef9e6-93ff-4edf-896f-8c16654a9923": {
                 "@type": "slate",
@@ -101,6 +117,7 @@ class TestBlockTransformers(unittest.TestCase):
         self.assertTrue(resolve_link.startswith("../resolveuid/"))
 
     def test_internal_link_serializer(self):
+        """test_internal_link_serializer."""
         doc_uid = IUUID(self.portal["front-page"])
         resolve_uid_link = {
             "@id": "../resolveuid/{}".format(doc_uid),

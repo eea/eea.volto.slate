@@ -1,3 +1,4 @@
+""" config module """
 KNOWN_BLOCK_TYPES = [
     "a",
     "b",

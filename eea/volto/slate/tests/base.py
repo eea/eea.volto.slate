@@ -1,5 +1,8 @@
 """ Base test cases
 """
+# pylint: disable=import-error,no-name-in-module,too-few-public-methods,
+# pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
+# pylint: disable=import-outside-toplevel
 from plone.app.testing import (TEST_USER_ID, FunctionalTesting,
                                PloneSandboxLayer, applyProfile, setRoles)
 from plone.testing import z2
@@ -47,4 +50,5 @@ class EEAFixture(PloneSandboxLayer):
 
 
 EEAFIXTURE = EEAFixture()
-FUNCTIONAL_TESTING = FunctionalTesting(bases=(EEAFIXTURE,), name="EEAslate:Functional")
+FUNCTIONAL_TESTING = FunctionalTesting(bases=(EEAFIXTURE,),
+                                       name="EEAslate:Functional")

@@ -1,9 +1,14 @@
+""" utils module """
 from collections import deque
 
 
 def iterate_children(value):
+    """iterate_children.
+
+    :param value:
+    """
     queue = deque(value)
-    while len(queue):
+    while queue:
         child = queue.pop()
         yield child
         if child.get("children"):

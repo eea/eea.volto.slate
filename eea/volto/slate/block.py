@@ -1,6 +1,11 @@
+# pylint: disable=import-error,no-name-in-module,too-few-public-methods,
+# pylint: disable=not-callable,no-self-use,unused-argument
+""" block module """
 import os
 
-import six
+from zope.interface import implementer
+from zope.component import adapter
+from zope.publisher.interfaces.browser import IBrowserRequest
 from plone import api
 from plone.restapi.behaviors import IBlocks
 from plone.restapi.deserializer.blocks import path2uid
@@ -8,18 +13,15 @@ from plone.restapi.interfaces import (IBlockFieldDeserializationTransformer,
                                       IBlockFieldSerializationTransformer)
 from plone.restapi.serializer.blocks import uid_to_url
 from Products.CMFPlone.interfaces import IPloneSiteRoot
-from zope.component import adapter
-from zope.interface import implementer
-from zope.publisher.interfaces.browser import IBrowserRequest
 
 from .utils import iterate_children
 
 
 def transform_links(context, value, transformer):
-    # Convert absolute links to resolveuid
-    #   http://localhost:55001/plone/link-target
-    #   ->
-    #   ../resolveuid/023c61b44e194652804d05a15dc126f4
+    """ Convert absolute links to resolveuid
+       http://localhost:55001/plone/link-target
+       ->
+       ../resolveuid/023c61b44e194652804d05a15dc126f4"""
     data = value.get("data", {})
     if data.get("link", {}).get("internal", {}).get("internal_link"):
         internal_link = data["link"]["internal"]["internal_link"]
@@ -27,7 +29,9 @@ def transform_links(context, value, transformer):
             link["@id"] = transformer(context, link["@id"])
 
 
-class SlateBlockTransformer(object):
+class SlateBlockTransformer():
+    """SlateBlockTransformer."""
+
     field = "value"
 
     def __init__(self, context, request):
@@ -52,15 +56,26 @@ class SlateBlockTransformer(object):
 
 
 class SlateBlockSerializerBase(SlateBlockTransformer):
+    """SlateBlockSerializerBase."""
+
     order = 100
     block_type = "slate"
     disabled = os.environ.get("disable_transform_resolveuid", False)
 
     def _uid_to_url(self, context, path):
+        """_uid_to_url.
+
+        :param context:
+        :param path:
+        """
         portal = api.portal.get()
         return uid_to_url(path).replace(portal.absolute_url(), "")
 
     def handle_a(self, child):
+        """handle_a.
+
+        :param child:
+        """
         transform_links(self.context, child, transformer=self._uid_to_url)
 
 
@@ -77,11 +92,17 @@ class SlateBlockSerializerRoot(SlateBlockSerializerBase):
 
 
 class SlateBlockDeserializerBase(SlateBlockTransformer):
+    """SlateBlockDeserializerBase."""
+
     order = 100
     block_type = "slate"
     disabled = os.environ.get("disable_transform_resolveuid", False)
 
     def handle_a(self, child):
+        """handle_a.
+
+        :param child:
+        """
         transform_links(self.context, child, transformer=path2uid)
 
 
