@@ -1,8 +1,8 @@
 """ indexers module """
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,useless-object-inheritance
 
 
-class SlateTextIndexer():
+class SlateTextIndexer(object):
     """SlateTextIndexer."""
 
     def __init__(self, context, request):

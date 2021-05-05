@@ -4,7 +4,7 @@ A port of volto-slate' deserialize.js module
 """
 # pylint: disable=import-error,no-name-in-module,too-few-public-methods,
 # pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
-# pylint: disable=import-outside-toplevel
+# pylint: disable=useless-object-inheritance
 
 import json
 import re
@@ -99,7 +99,7 @@ def merge_adjacent_text_nodes(children):
     return result
 
 
-class HTML2Slate():
+class HTML2Slate(object):
     """A parser for HTML to slate conversion
 
     If you need to handle some custom slate markup, inherit and extend
@@ -271,7 +271,7 @@ class HTML2Slate():
         """
 
         # TO DO: needs reimplementation according to above info
-        if len(children) == 0:
+        if children == 0:
             children.append({"text": ""})
             return
 

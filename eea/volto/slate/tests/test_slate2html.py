@@ -1,7 +1,6 @@
 """ Slate2HTML module """
 # pylint: disable=import-error,no-name-in-module,too-few-public-methods,
 # pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
-# pylint: disable=import-outside-toplevel
 # -*- coding: utf-8 -*-
 
 import json

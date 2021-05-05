@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=import-error,no-name-in-module,too-few-public-methods,
 # pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
-# pylint: disable=import-outside-toplevel
 
 import json
 import os
@@ -18,7 +17,8 @@ def read_data(filename):
 
     :param filename:
     """
-    fpath = resource_filename("eea.volto.slate", os.path.join("tests/data", filename))
+    fpath = resource_filename("eea.volto.slate", os.path.join("tests/data",
+                                                              filename))
 
     with open(fpath) as f:
         return f.read()
@@ -29,7 +29,8 @@ def read_json(filename):
 
     :param filename:
     """
-    fpath = resource_filename("eea.volto.slate", os.path.join("tests/data", filename))
+    fpath = resource_filename("eea.volto.slate", os.path.join("tests/data",
+                                                              filename))
 
     with open(fpath) as f:
         return json.load(f)
@@ -43,16 +44,19 @@ class TestConvertHTML2Slate(unittest.TestCase):
     def test_convert_simple_string(self):
         """test_convert_simple_string."""
         res = text_to_slate("Hello world")
-        self.assertEqual(res, [{"children": [{"text": "Hello world"}], "type": "p"}])
+        self.assertEqual(res, [{"children": [{"text": "Hello world"}],
+                                "type": "p"}])
 
     def test_convert_simple_paragraph(self):
         """test_convert_simple_paragraph."""
         res = text_to_slate("<p>Hello world</p>")
-        self.assertEqual(res, [{"children": [{"text": "Hello world"}], "type": "p"}])
+        self.assertEqual(res, [{"children": [{"text": "Hello world"}],
+                                "type": "p"}])
 
     def test_convert_text_and_a_tag(self):
         """test_convert_simple_paragraph."""
-        res = text_to_slate("Hello <strong>world</strong> mixed <i>content</i>.")
+        res = text_to_slate(
+            "Hello <strong>world</strong> mixed <i>content</i>.")
 
         self.assertEqual(
             res,

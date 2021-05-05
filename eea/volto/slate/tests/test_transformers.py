@@ -49,7 +49,8 @@ class TestBlockTransformers(unittest.TestCase):
         blocks = blocks or ""
         context = context or self.portal.doc
         self.request["BODY"] = json.dumps({"blocks": blocks})
-        deserializer = getMultiAdapter((context, self.request), IDeserializeFromJson)
+        deserializer = getMultiAdapter((context, self.request),
+                                       IDeserializeFromJson)
 
         return deserializer(validate_all=validate_all)
 
@@ -66,7 +67,8 @@ class TestBlockTransformers(unittest.TestCase):
                 break
         dm = getMultiAdapter((context, field), IDataManager)
         dm.set(blocks)
-        serializer = getMultiAdapter((field, context, self.request), IFieldSerializer)
+        serializer = getMultiAdapter((field, context, self.request),
+                                     IFieldSerializer)
         return serializer()
 
     def test_internal_link_deserializer(self):
@@ -83,22 +85,17 @@ class TestBlockTransformers(unittest.TestCase):
                             {
                                 "children": [
                                     {"text": ""},
-                                    {
-                                        "type": "a",
-                                        "children": [{"text": "slate link"}],
-                                        "data": {
-                                            "link": {
-                                                "internal": {
-                                                    "internal_link": [
-                                                        {
-                                                            "@id": "/front-page",
-                                                            "title": "Welcome to Plone",
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        },
-                                    },
+                                    {"type": "a",
+                                     "children": [{"text": "slate link"}],
+                                     "data": {
+                                         "link": {
+                                             "internal": {
+                                                 "internal_link": [{
+                                                     "@id": "/front-page",
+                                                     "title":
+                                                     "Welcome to Plone",
+                                                 }]}}
+                                     }, },
                                     {"text": ""},
                                 ],
                                 "type": "strong",
@@ -113,7 +110,8 @@ class TestBlockTransformers(unittest.TestCase):
         res = self.deserialize(blocks=blocks)
         value = res.blocks["2caef9e6-93ff-4edf-896f-8c16654a9923"]["value"]
         link = value[0]["children"][1]["children"][1]
-        resolve_link = link["data"]["link"]["internal"]["internal_link"][0]["@id"]
+        resolve_link = link["data"]["link"]["internal"]["internal_link"][0][
+            "@id"]
         self.assertTrue(resolve_link.startswith("../resolveuid/"))
 
     def test_internal_link_serializer(self):
@@ -134,17 +132,14 @@ class TestBlockTransformers(unittest.TestCase):
                             {
                                 "children": [
                                     {"text": ""},
-                                    {
-                                        "children": [{"text": "slate link"}],
-                                        "data": {
-                                            "link": {
-                                                "internal": {
-                                                    "internal_link": [resolve_uid_link]
-                                                }
-                                            }
-                                        },
-                                        "type": "a",
-                                    },
+                                    {"children": [{"text": "slate link"}],
+                                     "data": {
+                                         "link": {
+                                             "internal": {
+                                                 "internal_link": [
+                                                     resolve_uid_link]
+                                             }}},
+                                     "type": "a", },
                                     {"text": ""},
                                 ],
                                 "type": "strong",
@@ -165,6 +160,7 @@ class TestBlockTransformers(unittest.TestCase):
 
         value = res["2caef9e6-93ff-4edf-896f-8c16654a9923"]["value"]
         link = value[0]["children"][1]["children"][1]
-        resolve_link = link["data"]["link"]["internal"]["internal_link"][0]["@id"]
+        resolve_link = link["data"]["link"]["internal"]["internal_link"][0][
+            "@id"]
 
         self.assertTrue(resolve_link == "/front-page")

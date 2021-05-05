@@ -2,7 +2,6 @@
 """ test indexer module """
 # pylint: disable=import-error,no-name-in-module,too-few-public-methods,
 # pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
-# pylint: disable=import-outside-toplevel
 import unittest
 
 from zope.component import queryUtility

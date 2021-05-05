@@ -1,7 +1,7 @@
 """ slate2html module """
 # pylint: disable=import-error,no-name-in-module,too-few-public-methods,
 # pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
-# pylint: disable=import-outside-toplevel
+# pylint: disable=useless-object-inheritance
 import json
 
 from lxml.html import builder as E
@@ -23,7 +23,7 @@ def join(element, children):
     return res[:-1]  # remove the last break
 
 
-class Slate2HTML():
+class Slate2HTML(object):
     """Slate2HTML."""
 
     def serialize(self, element):

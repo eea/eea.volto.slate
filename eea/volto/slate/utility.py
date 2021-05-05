@@ -1,10 +1,10 @@
 """ utilities module """
-# pylint: disable=no-self-use
+# pylint: disable=no-self-use,useless-object-inheritance
 from .html2slate import text_to_slate
 from .slate2html import slate_to_html
 
 
-class SlateConverter():
+class SlateConverter(object):
     """SlateConverter."""
 
     def html2slate(self, text):
