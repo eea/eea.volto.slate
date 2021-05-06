@@ -164,3 +164,8 @@ class TestBlockTransformers(unittest.TestCase):
     #        "@id"]
 
     #    self.assertTrue(resolve_link == "/front-page")
+
+    def test_bogus(self):
+        """ Bogus test to avoid deleting the entire module """
+
+        self.assertTrue(1 > 0)
