@@ -105,8 +105,8 @@ pipeline {
 //              }
 //            }
 //          },
-//        )
-//      }
+        )
+      }
     }
 
 //    stage('Report to SonarQube') {
