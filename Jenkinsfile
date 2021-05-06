@@ -98,6 +98,8 @@ pipeline {
                   stash name: "xunit-reports", includes: "xunit-reports/*.xml"
                   sh '''docker cp $BUILD_TAG-plonesaas:/plone/instance/src/$GIT_NAME/coverage.xml coverage.xml'''
                   stash name: "coverage.xml", includes: "coverage.xml"
+                } catch (err) {
+                  echo "Unstable: ${err}"
                 } finally {
                   sh '''docker rm -v $BUILD_TAG-plonesaas'''
                 }
@@ -118,6 +120,7 @@ pipeline {
       steps {
         node(label: 'swarm') {
           script{
+          try {
             checkout scm
             dir("xunit-reports") {
               unstash "xunit-reports"
@@ -130,6 +133,8 @@ pipeline {
                 sh "export PATH=$PATH:${scannerHome}/bin:${nodeJS}/bin; sonar-scanner -Dsonar.python.xunit.skipDetails=true -Dsonar.python.xunit.reportPath=xunit-reports/*.xml -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.sources=./eea -Dsonar.projectKey=$GIT_NAME-$BRANCH_NAME -Dsonar.projectVersion=$BRANCH_NAME-$BUILD_NUMBER"
                 sh '''try=2; while [ \$try -gt 0 ]; do curl -s -XPOST -u "${SONAR_AUTH_TOKEN}:" "${SONAR_HOST_URL}api/project_tags/set?project=${GIT_NAME}-${BRANCH_NAME}&tags=${SONARQUBE_TAGS},${BRANCH_NAME}" > set_tags_result; if [ \$(grep -ic error set_tags_result ) -eq 0 ]; then try=0; else cat set_tags_result; echo "... Will retry"; sleep 60; try=\$(( \$try - 1 )); fi; done'''
             }
+                } catch (err) {
+                  echo "Unstable: ${err}"}
           }
         }
       }
