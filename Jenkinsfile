@@ -96,7 +96,7 @@ pipeline {
                   sh '''docker pull eeacms/plonesaas-devel; docker run -i --name="$BUILD_TAG-plonesaas" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/plonesaas-devel /debug.sh coverage'''
                   sh '''mkdir -p xunit-reports; docker cp $BUILD_TAG-plonesaas:/plone/instance/parts/xmltestreport/testreports/. xunit-reports/'''
                   stash name: "xunit-reports", includes: "xunit-reports/*.xml"
-                  sh '''docker cp $BUILD_TAG-www:/plone/instance/src/$GIT_NAME/coverage.xml coverage.xml'''
+                  sh '''docker cp $BUILD_TAG-plonesaas:/plone/instance/src/$GIT_NAME/coverage.xml coverage.xml'''
                   stash name: "coverage.xml", includes: "coverage.xml"
                 } finally {
                   sh '''docker rm -v $BUILD_TAG-plonesaas'''
