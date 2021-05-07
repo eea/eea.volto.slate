@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+""" test indexer module """
+# pylint: disable=import-error,no-name-in-module,too-few-public-methods,
+# pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
 import unittest
 
-import transaction
 from zope.component import queryUtility
-
+import transaction
 from eea.volto.slate.tests.base import FUNCTIONAL_TESTING
 from plone.app.testing import TEST_USER_ID, setRoles
 from plone.dexterity.interfaces import IDexterityFTI
@@ -11,6 +13,7 @@ from plone.dexterity.utils import createContentInContainer
 
 
 class TestSearchTextInBlocks(unittest.TestCase):
+    """TestSearchTextInBlocks."""
 
     layer = FUNCTIONAL_TESTING
 
@@ -21,7 +24,7 @@ class TestSearchTextInBlocks(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ["Manager"])
 
         fti = queryUtility(IDexterityFTI, name="Document")
-        behavior_list = [a for a in fti.behaviors]
+        behavior_list = list(fti.behaviors)
         behavior_list.append("volto.blocks")
         fti.behaviors = tuple(behavior_list)
 
@@ -31,6 +34,7 @@ class TestSearchTextInBlocks(unittest.TestCase):
         transaction.commit()
 
     def test_search_text(self):
+        """test_search_text."""
         self.doc.blocks = {
             "38541872-06c2-41c9-8709-37107e597b18": {
                 "@type": "slate",

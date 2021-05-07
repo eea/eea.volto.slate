@@ -1,9 +1,13 @@
 """ Base test cases
 """
+# pylint: disable=import-error,no-name-in-module,too-few-public-methods,
+# pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
+import plone.restapi
 from plone.app.testing import (TEST_USER_ID, FunctionalTesting,
                                PloneSandboxLayer, applyProfile, setRoles)
 from plone.testing import z2
 from Products.CMFPlone import setuphandlers
+import eea.volto.slate
 
 
 class EEAFixture(PloneSandboxLayer):
@@ -11,8 +15,6 @@ class EEAFixture(PloneSandboxLayer):
 
     def setUpZope(self, app, configurationContext):
         """Setup Zope"""
-        import eea.volto.slate
-        import plone.restapi
 
         self.loadZCML(package=plone.restapi)
         self.loadZCML(package=eea.volto.slate)
@@ -47,4 +49,5 @@ class EEAFixture(PloneSandboxLayer):
 
 
 EEAFIXTURE = EEAFixture()
-FUNCTIONAL_TESTING = FunctionalTesting(bases=(EEAFIXTURE,), name="EEAslate:Functional")
+FUNCTIONAL_TESTING = FunctionalTesting(bases=(EEAFIXTURE,),
+                                       name="EEAslate:Functional")

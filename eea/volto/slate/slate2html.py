@@ -1,3 +1,6 @@
+""" slate2html module """
+# pylint: disable=import-error,no-name-in-module,too-few-public-methods,
+# pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
 import json
 
 from lxml.html import builder as E
@@ -7,6 +10,11 @@ from .config import KNOWN_BLOCK_TYPES
 
 
 def join(element, children):
+    """join.
+
+    :param element:
+    :param children:
+    """
     res = []
     for bit in children:
         res.append(bit)
@@ -15,7 +23,13 @@ def join(element, children):
 
 
 class Slate2HTML(object):
+    """Slate2HTML."""
+
     def serialize(self, element):
+        """serialize.
+
+        :param element:
+        """
         if "text" in element:
             if "\n" not in element["text"]:
                 return [element["text"]]
@@ -37,6 +51,10 @@ class Slate2HTML(object):
         return [res]
 
     def handle_tag_a(self, element):
+        """handle_tag_a.
+
+        :param element:
+        """
         internal_link = (
             element.get("data", {})
             .get("link", {})
@@ -58,6 +76,10 @@ class Slate2HTML(object):
         return el(*children, **attributes)
 
     def handle_slate_data_element(self, element):
+        """handle_slate_data_element.
+
+        :param element:
+        """
         el = E.SPAN
 
         children = []
@@ -70,6 +92,10 @@ class Slate2HTML(object):
         return el(*children, **attributes)
 
     def handle_block(self, element):
+        """handle_block.
+
+        :param element:
+        """
         el = getattr(E, element["type"].upper())
 
         children = []
@@ -79,14 +105,22 @@ class Slate2HTML(object):
         return el(*children)
 
     def to_html(self, value):
+        """to_html.
+
+        :param value:
+        """
         children = []
         for child in value:
             children += self.serialize(child)
 
-        # TODO: handle unicode properly
+        # TO DO: handle unicode properly
         return u"".join(tostring(f).decode("utf-8") for f in children)
 
 
 def slate_to_html(value):
+    """slate_to_html.
+
+    :param value:
+    """
     convert = Slate2HTML()
     return convert.to_html(value)

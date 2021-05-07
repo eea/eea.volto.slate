@@ -2,6 +2,8 @@
 
 A port of volto-slate' deserialize.js module
 """
+# pylint: disable=import-error,no-name-in-module,too-few-public-methods,
+# pylint: disable=not-callable,no-self-use,unused-argument,invalid-name
 
 import json
 import re
@@ -37,24 +39,29 @@ def clean_whitespace(c):
     for f in funcs:
         c = f(c)
 
-    # TODO: collapse multiple \n to a single space?
+    # TO DO: collapse multiple \n to a single space?
     return c
 
 
 def tag_name(el):
+    """tag_name.
+
+    :param el:
+    """
     return el.tag.replace("{%s}" % el.nsmap["html"], "")
 
 
 def is_inline(el):
     """Returns true if the element is a text node
 
-    Some richtext editors provide support for "inline elements", which is to say they
-    mark some portions of text and add flags for that, like "bold:true,italic:true",
-    etc.
+    Some richtext editors provide support for "inline elements", which is to
+    say they mark some portions of text and add flags for that, like
+    "bold:true,italic:true", etc.
 
-    From experience, this is a bad way to go when the output is intended to be HTML. In
-    HTML DOM there is only markup and that markup is semantic. So keeping it purely
-    markup greately simplifies the number of cases that need to be covered.
+    From experience, this is a bad way to go when the output is intended to be
+    HTML. In HTML DOM there is only markup and that markup is semantic. So
+    keeping it purely markup greately simplifies the number of cases that need
+    to be covered.
     """
 
     if isinstance(el, dict) and "text" in el:
@@ -85,7 +92,8 @@ def merge_adjacent_text_nodes(children):
             result.append(v)
         if i in range_dict:
             result.append(
-                {"text": u"".join([c["text"] for c in children[i : range_dict[i] + 1]])}
+                {"text": u"".join([c["text"]
+                                   for c in children[i: range_dict[i] + 1]])}
             )
     return result
 
@@ -107,6 +115,10 @@ class HTML2Slate(object):
         return self.normalize(nodes)
 
     def deserialize_children(self, node):
+        """deserialize_children.
+
+        :param node:
+        """
         nodes = [node.text]
         for child in node.iterchildren():
             nodes.append(child)
@@ -121,13 +133,17 @@ class HTML2Slate(object):
         return res
 
     def handle_tag_a(self, node):
+        """handle_tag_a.
+
+        :param node:
+        """
         attrs = node.attrib
         link = attrs.get("href", "")
 
         element = {"type": "a", "children": self.deserialize_children(node)}
         if link:
             if link.startswith("http") or link.startswith("//"):
-                # TODO: implement external link
+                # TO DO: implement external link
                 pass
             else:
                 element["data"] = {
@@ -145,16 +161,29 @@ class HTML2Slate(object):
         return element
 
     def handle_tag_br(self, node):
+        """handle_tag_br.
+
+        :param node:
+        """
         return {"text": "\n"}
 
     def handle_block(self, node):
-        return {"type": tag_name(node), "children": self.deserialize_children(node)}
+        """handle_block.
+
+        :param node:
+        """
+        return {"type": tag_name(node),
+                "children": self.deserialize_children(node)}
 
     # def handle_tag_b(self, node):
-    #     # TODO: implement <b> special cases
+    #     # TO DO: implement <b> special cases
     #     return self.handle_block(node)
 
     def handle_slate_data_element(self, node):
+        """handle_slate_data_element.
+
+        :param node:
+        """
         element = json.loads(node.attrib["data-slate-data"])
         element["children"] = self.deserialize_children(node)
         return element
@@ -208,7 +237,7 @@ class HTML2Slate(object):
 
         stack = deque(value)
 
-        while len(stack):
+        while stack:
             child = stack.pop()
             children = child.get("children", None)
             if children is not None:
@@ -221,25 +250,27 @@ class HTML2Slate(object):
 
         return value
 
-    def _pad_with_space(children):
-        """Mutate the children array in-place. It pads them with 'empty spaces'.
+    def _pad_with_space(self, children):
+        """ Mutate the children array in-place. It pads them with
+        'empty spaces'.
 
         Extract from Slate docs:
         https://docs.slatejs.org/concepts/02-nodes#blocks-vs-inlines
 
-        You can define which nodes are treated as inline nodes by overriding the
-        editor.isInline function. (By default it always returns false.) Note that inline
-        nodes cannot be the first or last child of a parent block, nor can it be next to
-        another inline node in the children array. Slate will automatically space these
-        with { text: '' } children by default with normalizeNode.
+        You can define which nodes are treated as inline nodes by overriding
+        the editor.isInline function. (By default it always returns false.).
+        Note that inline nodes cannot be the first or last child of a parent
+        block, nor can it be next to another inline node in the children array.
+        Slate will automatically space these with { text: '' } children by
+        default with normalizeNode.
 
-        Elements can either contain block elements or inline elements intermingled with
-        text nodes as children. But elements cannot contain some children that are
-        blocks and some that are inlines.
+        Elements can either contain block elements or inline elements
+        intermingled with text nodes as children. But elements cannot contain
+        some children that are blocks and some that are inlines.
         """
 
-        # TODO: needs reimplementation according to above info
-        if len(children) == 0:
+        # TO DO: needs reimplementation according to above info
+        if children == 0:
             children.append({"text": ""})
             return
 
@@ -250,4 +281,8 @@ class HTML2Slate(object):
 
 
 def text_to_slate(text):
+    """text_to_slate.
+
+    :param text:
+    """
     return HTML2Slate().to_slate(text)
